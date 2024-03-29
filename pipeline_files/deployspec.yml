@@ -1,0 +1,36 @@
+version: 0.2
+phases:
+  install: # Install kubectl, Helm, docker-compose
+    commands:
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.28.0/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv ./kubectl /usr/local/bin/kubectl
+      - curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - helm repo add stable https://charts.helm.sh/stable && helm repo update
+      #- sudo curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+      #- sudo chmod +x /usr/local/bin/docker-compose
+      #- sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+  pre_build: # Check helm version and Add kubeconfig to access to EKS cluster and check readiness of the cluster
+    commands:
+      - "helm version"
+      #- "docker-compose version"
+      - "mkdir ~/.kube/"
+      - "aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $AWS_CLUSTER_NAME"
+      - "chmod 0600 ~/.kube/config"
+      - "aws sts get-caller-identity"
+
+  build: # Deploy app via Helm / docker-compose
+    commands:
+      #- "helm upgrade -i $APP_NAME ./helm_charts -f helm_charts/values.yaml --set image.repository=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME --set image.tag=$IMAGE_TAG"
+      #- "docker-compose ./spring-boot-sample-cluster-app/docker-compose.yml -p terraform-cicd-eks-project up"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/springboot-k8s-config.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/grafana-service.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus-service.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/grafana-deployment.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/grafana-claim0-persistentvolumeclaim.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus-deployment.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus-claim0-persistentvolumeclaim.yaml"
+  post_build:
+    commands:
+      - bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
