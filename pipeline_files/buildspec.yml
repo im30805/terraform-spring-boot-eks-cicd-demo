@@ -8,8 +8,7 @@ phases:
   build:
     commands:
       - echo Running Spring Boot app to generate target folder
-      - mvn spring-boot:run
-      - ^C
+      - mvn -f ./spring-boot-sample-cluster-app clean install
       - echo Build started on `date`
       - echo Building the Docker image...          
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG ./spring-boot-sample-cluster-app
