@@ -1,6 +1,6 @@
 version: 0.2
 phases:
-  install: # Install kubectl, Helm, docker-compose
+  install: # Install kubectl, Helm, docker-compose, maven
     commands:
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.28.0/bin/linux/amd64/kubectl
       - chmod +x kubectl
@@ -10,6 +10,9 @@ phases:
       #- sudo curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
       #- sudo chmod +x /usr/local/bin/docker-compose
       #- sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+      - sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+      - sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
+      - sudo yum install -y apache-maven
 
   pre_build: # Check helm version and Add kubeconfig to access to EKS cluster and check readiness of the cluster
     commands:
