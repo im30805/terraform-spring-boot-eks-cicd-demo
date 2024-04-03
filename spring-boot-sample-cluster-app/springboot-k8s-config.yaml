@@ -28,6 +28,20 @@ spec:
     app: springbootappdemo
   ports:
     - protocol: TCP
+      name: http-traffic
       port: 80
       targetPort: 8080
   type: LoadBalancer
+  
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+ name: springbootappdemo-service-monitor
+spec:
+ selector:
+   matchLabels:
+     app: springbootappdemo
+ endpoints:
+   - port: http-traffic
+     path: "/actuator/prometheus"
