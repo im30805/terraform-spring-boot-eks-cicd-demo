@@ -26,18 +26,17 @@ phases:
   build: # Deploy app via Helm / docker-compose
     commands:
       #- "helm upgrade -i $APP_NAME ./helm_charts -f helm_charts/values.yaml --set image.repository=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME --set image.tag=$IMAGE_TAG"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/springboot-k8s-config.yaml"
       #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus_spring_boot.yaml"
-      - "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml --force-conflicts=true --server-side=true"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus_rbac.yaml"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus_instance.yaml"
+      #- "kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml --force-conflicts=true --server-side=true"
+      #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus_rbac.yaml"
+      #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/prometheus_instance.yaml"
       #- "kubectl port-forward svc/prometheus-operated 9090:9090"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/service_monitor.yaml"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/grafana.yaml"
+      #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/service_monitor.yaml"
+      #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/grafana.yaml"
       #- "kubectl create deployment grafana --image=docker.io/grafana/grafana:latest"
-      #- "kubectl expose deployment grafana --port 3000" # Create a service for the Grafana deployment
-      #- "kubectl port-forward svc/grafana 3000:3000"
-      - "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/expose_prometheus.yaml"
+      #- "kubectl expose deployment grafana --port=3000 --target-port=3000 --type=LoadBalancer --name=grafana-load-balancer"
+      #- "kubectl apply -f ./spring-boot-sample-cluster-app/monitoring/expose_prometheus.yaml"
+      - "kubectl apply -f ./spring-boot-sample-cluster-app/springboot-k8s-config.yaml"
       
       
   post_build:
